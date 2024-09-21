@@ -8,6 +8,7 @@ import Link from "next/link";
 
 const Header = async () => {
   const session = await auth();
+
   return (
     <div className="bg-gray-100 py-4 ">
       <div className="container flex justify-between  mx-auto">

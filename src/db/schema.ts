@@ -16,6 +16,7 @@ export const Bids = pgTable("ac_bids", {
 export const items = pgTable("ac_item", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  fileKey: text("fileKey").notNull(),
   startingPrice: integer("startingPrice").notNull().default(0),
   userId: text("userId")
     .notNull()
@@ -98,3 +99,5 @@ export const authenticators = pgTable(
     }),
   })
 );
+
+export type Item = typeof items.$inferSelect;

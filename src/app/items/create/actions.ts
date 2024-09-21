@@ -5,7 +5,7 @@ import { items } from "@/db/schema";
 
 import { redirect } from "next/navigation";
 
-export async function createItemAction(formData: FormData) {
+export async function createItemAction(formData: FormData, fileKey: string) {
   const session = await auth();
 
   if (!session) {
@@ -26,6 +26,7 @@ export async function createItemAction(formData: FormData) {
     name: name as string,
     startingPrice: cents,
     userId: user.id,
+    fileKey,
   });
 
   // revalidatePath("/"); we don't need to revalidate the home page
