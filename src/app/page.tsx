@@ -1,10 +1,5 @@
 import { auth } from "@/auth";
-import SignIn from "@/components/Sign-in";
-import { SignOut } from "@/components/Sign-out";
-import { Button } from "@/components/ui/button";
 import { database } from "@/db/database";
-import { items } from "@/db/schema";
-import { revalidatePath } from "next/cache";
 
 export default async function HomePage() {
   const allItems = await database.query.items.findMany();
@@ -16,28 +11,14 @@ export default async function HomePage() {
   if (!user) return null;
 
   return (
-    <main className="container mx-auto py-12">
-      {session ? <SignOut /> : <SignIn />}
-
-      <form
-        action={async (formData) => {
-          "use server";
-          const name = formData.get("name");
-          await database.insert(items).values({
-            name: name as string,
-            userId: user.id as string,
-          });
-
-          revalidatePath("/");
-        }}
-      >
-        <input type="text" name="name" placeholder="Name your item" />
-        <Button type="submit">Post Item</Button>
-        {/* <button type="submit">Place a Bid</button> */}
-      </form>
-      <div>
+    <main className="container mx-auto py-12 space-y-8">
+      <h1 className="text-4xl font-bold">Items For Sale</h1>
+      <div className="grid grid-cols-4 gap-4">
         {allItems.map((item) => (
-          <div key={item.id}>{item.name}</div>
+          <div className="p-6 rounded-xl border" key={item.id}>
+            {item.name}
+            <div>Starting Price: ${item.startingPrice / 100}</div>
+          </div>
         ))}
       </div>
     </main>
