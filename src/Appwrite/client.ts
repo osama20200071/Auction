@@ -1,5 +1,5 @@
 import { env } from "@/env";
-import { Client, Storage } from "appwrite";
+import { Client, ID, Storage } from "appwrite";
 
 const client = new Client();
 const storage = new Storage(client);
@@ -12,4 +12,12 @@ function getImageUrl(fileKey: string) {
   return storage.getFilePreview(env.NEXT_PUBLIC_BUCKET_ID, fileKey).href;
 }
 
-export { client, storage, getImageUrl };
+async function deleteImage(fileKey: string) {
+  return await storage.deleteFile(env.NEXT_PUBLIC_BUCKET_ID, fileKey);
+}
+
+async function createImage(file: File) {
+  return await storage.createFile(env.NEXT_PUBLIC_BUCKET_ID, ID.unique(), file);
+}
+
+export { client, storage, getImageUrl, deleteImage, createImage };

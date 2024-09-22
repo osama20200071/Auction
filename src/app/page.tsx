@@ -1,8 +1,9 @@
 import { getImageUrl } from "@/Appwrite/client";
 import { auth } from "@/auth";
 import CardItem from "@/components/CardItem";
+import { EmptyState } from "@/components/EmptyState";
 import { database } from "@/db/database";
-import Image from "next/image";
+import { pageTitleStyles } from "../styles";
 
 export default async function HomePage() {
   const allItems = await database.query.items.findMany();
@@ -14,14 +15,21 @@ export default async function HomePage() {
 
   if (!user) return null;
 
+  const haveAuctions = allItems.length > 0;
+
   return (
-    <main className="container mx-auto py-12 space-y-8">
-      <h1 className="text-4xl font-bold">Items For Sale</h1>
-      <div className="grid grid-cols-4 gap-4">
-        {allItems.map((item) => (
-          <CardItem item={item} key={item.id} />
-        ))}
-      </div>
+    <main className=" space-y-8">
+      <h1 className={pageTitleStyles}>Items For Sale</h1>
+
+      {haveAuctions ? (
+        <div className="grid grid-cols-4 gap-4">
+          {allItems.map((item) => (
+            <CardItem item={item} key={item.id} />
+          ))}
+        </div>
+      ) : (
+        <EmptyState text="We have no auctions yet" />
+      )}
     </main>
   );
 }

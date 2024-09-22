@@ -1,28 +1,18 @@
 "use client";
 
-import { storage } from "@/Appwrite/client";
+import { createImage } from "@/Appwrite/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { env } from "@/env";
-import { ID } from "appwrite";
-import React from "react";
 import { createItemAction } from "./actions";
 
 const UploadFile = () => {
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const form = e.currentTarget as HTMLFormElement;
-    const formData = new FormData(form);
+    const formData = new FormData(e.currentTarget);
     const file = formData.get("file") as File;
 
-    const response = await storage.createFile(
-      env.NEXT_PUBLIC_BUCKET_ID,
-      ID.unique(),
-      file
-    );
-
-    console.log(response);
+    const response = await createImage(file);
     await createItemAction(formData, response.$id); // server action
   };
 

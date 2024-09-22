@@ -1,5 +1,5 @@
+import { relations } from "drizzle-orm";
 import {
-  boolean,
   integer,
   pgTable,
   primaryKey,
@@ -7,39 +7,25 @@ import {
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
-import type { AdapterAccountType } from "next-auth/adapters";
+import type { AdapterAccount } from "next-auth/adapters";
 
-export const Bids = pgTable("ac_bids", {
-  id: serial("id").primaryKey(),
-});
-
-export const items = pgTable("ac_item", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  fileKey: text("fileKey").notNull(),
-  startingPrice: integer("startingPrice").notNull().default(0),
-  userId: text("userId")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-});
-
-export const users = pgTable("ac_user", {
+export const users = pgTable("bb_user", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   name: text("name"),
-  email: text("email").unique(),
+  email: text("email").notNull(),
   emailVerified: timestamp("emailVerified", { mode: "date" }),
   image: text("image"),
 });
 
 export const accounts = pgTable(
-  "ac_account",
+  "bb_account",
   {
     userId: text("userId")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    type: text("type").$type<AdapterAccountType>().notNull(),
+    type: text("type").$type<AdapterAccount>().notNull(),
     provider: text("provider").notNull(),
     providerAccountId: text("providerAccountId").notNull(),
     refresh_token: text("refresh_token"),
@@ -57,7 +43,7 @@ export const accounts = pgTable(
   })
 );
 
-export const sessions = pgTable("ac_session", {
+export const sessions = pgTable("bb_session", {
   sessionToken: text("sessionToken").primaryKey(),
   userId: text("userId")
     .notNull()
@@ -66,38 +52,47 @@ export const sessions = pgTable("ac_session", {
 });
 
 export const verificationTokens = pgTable(
-  "ac_verificationToken",
+  "bb_verificationToken",
   {
     identifier: text("identifier").notNull(),
     token: text("token").notNull(),
     expires: timestamp("expires", { mode: "date" }).notNull(),
   },
-  (verificationToken) => ({
-    compositePk: primaryKey({
-      columns: [verificationToken.identifier, verificationToken.token],
-    }),
+  (vt) => ({
+    compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
   })
 );
 
-export const authenticators = pgTable(
-  "ac_authenticator",
-  {
-    credentialID: text("credentialID").notNull().unique(),
-    userId: text("userId")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    providerAccountId: text("providerAccountId").notNull(),
-    credentialPublicKey: text("credentialPublicKey").notNull(),
-    counter: integer("counter").notNull(),
-    credentialDeviceType: text("credentialDeviceType").notNull(),
-    credentialBackedUp: boolean("credentialBackedUp").notNull(),
-    transports: text("transports"),
-  },
-  (authenticator) => ({
-    compositePK: primaryKey({
-      columns: [authenticator.userId, authenticator.credentialID],
-    }),
-  })
-);
+export const items = pgTable("bb_item", {
+  id: serial("id").primaryKey(),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  fileKey: text("fileKey").notNull(),
+  // currentBid: integer("currentBid").notNull().default(0),
+  startingPrice: integer("startingPrice").notNull().default(0),
+  bidInterval: integer("bidInterval").notNull().default(100),
+  // endDate: timestamp("endDate", { mode: "date" }).notNull(),
+});
+
+export const bids = pgTable("bb_bids", {
+  id: serial("id").primaryKey(),
+  // amount: integer("amount").notNull(),
+  itemId: serial("itemId")
+    .notNull()
+    .references(() => items.id, { onDelete: "cascade" }),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  // timestamp: timestamp("timestamp", { mode: "date" }).notNull(),
+});
+
+export const usersRelations = relations(bids, ({ one }) => ({
+  user: one(users, {
+    fields: [bids.userId],
+    references: [users.id],
+  }),
+}));
 
 export type Item = typeof items.$inferSelect;
