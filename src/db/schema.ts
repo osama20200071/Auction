@@ -70,7 +70,7 @@ export const items = pgTable("bb_item", {
     .references(() => users.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   fileKey: text("fileKey").notNull(),
-  // currentBid: integer("currentBid").notNull().default(0),
+  currentBid: integer("currentBid").notNull().default(0),
   startingPrice: integer("startingPrice").notNull().default(0),
   bidInterval: integer("bidInterval").notNull().default(100),
   // endDate: timestamp("endDate", { mode: "date" }).notNull(),
@@ -78,16 +78,19 @@ export const items = pgTable("bb_item", {
 
 export const bids = pgTable("bb_bids", {
   id: serial("id").primaryKey(),
-  // amount: integer("amount").notNull(),
+  amount: integer("amount").notNull(),
   itemId: serial("itemId")
     .notNull()
     .references(() => items.id, { onDelete: "cascade" }),
   userId: text("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  // timestamp: timestamp("timestamp", { mode: "date" }).notNull(),
+  timestamp: timestamp("timestamp", { mode: "date" }).notNull(),
 });
 
+// relate items and bids
+
+// relate users and bids => so we can make join the user info when fetching the bids
 export const usersRelations = relations(bids, ({ one }) => ({
   user: one(users, {
     fields: [bids.userId],
