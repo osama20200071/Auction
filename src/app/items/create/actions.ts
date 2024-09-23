@@ -5,7 +5,11 @@ import { items } from "@/db/schema";
 
 import { redirect } from "next/navigation";
 
-export async function createItemAction(formData: FormData, fileKey: string) {
+export async function createItemAction(
+  formData: FormData,
+  date: Date,
+  fileKey: string
+) {
   const session = await auth();
 
   if (!session) {
@@ -22,12 +26,15 @@ export async function createItemAction(formData: FormData, fileKey: string) {
   const cents = Math.floor(parseFloat(price) * 100);
 
   const name = formData.get("name");
-  await database.insert(items).values({
+   await database.insert(items).values({
     name: name as string,
     startingPrice: cents,
     userId: user.id,
     fileKey,
+    endDate: date,
   });
+
+
 
   // revalidatePath("/"); we don't need to revalidate the home page
   redirect("/");

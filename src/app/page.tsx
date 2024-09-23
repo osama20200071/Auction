@@ -4,6 +4,9 @@ import CardItem from "@/components/CardItem";
 import { EmptyState } from "@/components/EmptyState";
 import { database } from "@/db/database";
 import { pageTitleStyles } from "../styles";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import SignIn from "@/components/Sign-in-Client";
 
 export default async function HomePage() {
   const allItems = await database.query.items.findMany();
@@ -11,9 +14,7 @@ export default async function HomePage() {
   allItems.forEach((item) => (item.fileKey = getImageUrl(item.fileKey)));
 
   const session = await auth();
-  const user = session?.user;
-
-  if (!user) return null;
+  const userId = session?.user?.id;
 
   const haveAuctions = allItems.length > 0;
 
@@ -28,7 +29,15 @@ export default async function HomePage() {
           ))}
         </div>
       ) : (
-        <EmptyState text="We have no auctions yet" />
+        <EmptyState text="We have no auctions yet">
+          {userId ? (
+            <Button asChild>
+              <Link href="/items/create">Create Auction</Link>
+            </Button>
+          ) : (
+            <SignIn />
+          )}
+        </EmptyState>
       )}
     </main>
   );

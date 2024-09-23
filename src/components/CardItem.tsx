@@ -4,6 +4,8 @@ import React from "react";
 import { Button } from "./ui/button";
 import Link from "next/link";
 import { formatToDollar } from "@/utils/currency";
+import { format } from "date-fns";
+import { isBidOver } from "@/utils/bids";
 
 function CardItem({ item }: { item: Item }) {
   return (
@@ -20,9 +22,26 @@ function CardItem({ item }: { item: Item }) {
         Starting Price:{" "}
         <span className="font-bold">{formatToDollar(item.startingPrice)}</span>
       </div>
-      <Button asChild>
-        <Link href={`/items/${item.id}`}>Place Bid</Link>
-      </Button>
+      {isBidOver(item) ? (
+        <>
+          <div className="font-bold">Bidding is over</div>
+          <Button asChild variant="secondary">
+            <Link href={`/items/${item.id}`}>View Bids</Link>
+          </Button>
+        </>
+      ) : (
+        <>
+          <div>
+            Ends On:{" "}
+            <span className="font-bold">
+              {format(item.endDate, "eeee M/dd/yy")}
+            </span>
+          </div>
+          <Button asChild>
+            <Link href={`/items/${item.id}`}>Place Bid</Link>
+          </Button>
+        </>
+      )}
     </div>
   );
 }

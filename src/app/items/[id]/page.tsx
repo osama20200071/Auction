@@ -1,7 +1,7 @@
 import { getImageUrl } from "@/Appwrite/client";
 import { Button } from "@/components/ui/button";
 
-import { formatTimestamp, formatToDollar } from "@/utils/currency";
+import { formatToDollar } from "@/utils/currency";
 import { pageTitleStyles } from "@/styles";
 
 import Image from "next/image";
@@ -10,12 +10,15 @@ import { placeBidAction } from "./actions";
 import { getBidsForItem } from "@/data-layer/bids";
 import { getItem } from "@/data-layer/items";
 import { auth } from "@/auth";
+import { formatTimestamp, isBidOver } from "@/utils/bids";
+import { Badge } from "@/components/ui/badge";
 
 async function ItemPage({ params: { id } }: { params: { id: string } }) {
   // this parseInt get the number from the string so 22r => 22
   // but we may not have that 22R already
 
   const item = await getItem(parseInt(id));
+  // console.log(item);
   const session = await auth();
 
   if (!item) {
@@ -38,11 +41,17 @@ async function ItemPage({ params: { id } }: { params: { id: string } }) {
   const AllBids = await getBidsForItem(item.id);
   const hasBids = AllBids.length > 0;
 
-  const canPlaceBid = session && item.userId !== session.user.id;
+  const canPlaceBid =
+    session && item.userId !== session.user.id && isBidOver(item);
 
   return (
     <div className="flex gap-8">
       <div className="space-y-8 ">
+        {isBidOver(item) && (
+          <Badge className="w-fit text-lg" variant="destructive">
+            Bidding Over
+          </Badge>
+        )}
         <h1 className={pageTitleStyles}>
           <span className="font-normal">Auction For</span> {item.name}
         </h1>
