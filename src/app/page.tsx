@@ -1,20 +1,16 @@
 import { getImageUrl } from "@/Appwrite/client";
-import { auth } from "@/auth";
 import CardItem from "@/components/CardItem";
 import { EmptyState } from "@/components/EmptyState";
-import { database } from "@/db/database";
 import { pageTitleStyles } from "../styles";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import SignIn from "@/components/Sign-in-Client";
+import Protected from "@/components/Protected-Server";
+import { getAllItems } from "@/data-layer/items";
 
 export default async function HomePage() {
-  const allItems = await database.query.items.findMany();
-
+  const allItems = await getAllItems();
   allItems.forEach((item) => (item.fileKey = getImageUrl(item.fileKey)));
-
-  const session = await auth();
-  const userId = session?.user?.id;
 
   const haveAuctions = allItems.length > 0;
 
@@ -30,13 +26,11 @@ export default async function HomePage() {
         </div>
       ) : (
         <EmptyState text="We have no auctions yet">
-          {userId ? (
+          <Protected fallback={<SignIn />}>
             <Button asChild>
               <Link href="/items/create">Create Auction</Link>
             </Button>
-          ) : (
-            <SignIn />
-          )}
+          </Protected>
         </EmptyState>
       )}
     </main>
