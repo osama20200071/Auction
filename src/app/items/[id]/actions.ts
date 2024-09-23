@@ -5,14 +5,21 @@ import { database } from "@/db/database";
 import { bids, items } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { Knock } from "@knocklabs/node";
+import { env } from "@/env";
+
+const knock = new Knock(env.KNOCK_SECRET_KEY);
 
 // to use this action we wrap the button inside a form
 export async function placeBidAction(itemId: number) {
   const session = await auth();
 
-  if (!session || !session.user || !session.user.id) {
-    throw new Error("Login first to place a bid");
+  const userId = session?.user?.id;
+
+  if (!userId) {
+    throw new Error("You must be logged in to place a bid");
   }
+
   // we need to fetch item data so we get all the previous bids on that item
   // so we can calculate the right amount of the new bid
 
@@ -33,7 +40,7 @@ export async function placeBidAction(itemId: number) {
 
   const bid = await database.insert(bids).values({
     itemId,
-    userId: session.user.id as string,
+    userId,
     amount,
     timestamp: new Date(),
   });
@@ -44,5 +51,49 @@ export async function placeBidAction(itemId: number) {
     .set({ currentBid: amount })
     .where(eq(items.id, itemId));
 
-  revalidatePath(`/items/${items.id}`);
+  // get all the bids on the item
+  const currentBids = await database.query.bids.findMany({
+    where: eq(bids.itemId, itemId),
+    with: {
+      user: true,
+    },
+  });
+
+  const recipients: {
+    id: string;
+    name: string;
+    email: string;
+  }[] = [];
+
+  for (const bid of currentBids) {
+    if (
+      // bid.userId !== userId &&
+      !recipients.find((recipient) => recipient.id === bid.userId)
+    ) {
+      recipients.push({
+        id: bid.userId + "",
+        name: bid.user.name ?? "Anonymous",
+        email: bid.user.email,
+      });
+    }
+  }
+
+  if (recipients.length > 0) {
+    await knock.workflows.trigger("user-placed-bid", {
+      actor: {
+        id: userId,
+        name: session?.user?.name ?? "Anonymous",
+        email: session?.user?.email,
+        collection: "users",
+      },
+      recipients,
+      data: {
+        itemId,
+        bidAmount: amount,
+        itemName: item.name,
+      },
+    });
+  }
+
+  revalidatePath(`/items/${item.id}`);
 }

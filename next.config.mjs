@@ -6,6 +6,10 @@ const nextConfig = {
         hostname: "cloud.appwrite.io",
         protocol: "https",
       },
+      {
+        hostname: "lh3.googleusercontent.com",
+        protocol: "https",
+      },
     ],
   },
 };

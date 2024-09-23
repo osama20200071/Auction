@@ -1,21 +1,22 @@
 import { getImageUrl } from "@/Appwrite/client";
 import { Button } from "@/components/ui/button";
-import { database } from "@/db/database";
-import { bids, items, users } from "@/db/schema";
+
 import { formatTimestamp, formatToDollar } from "@/utils/currency";
 import { pageTitleStyles } from "@/styles";
-import { desc, eq } from "drizzle-orm";
+
 import Image from "next/image";
 import Link from "next/link";
 import { placeBidAction } from "./actions";
 import { getBidsForItem } from "@/data-layer/bids";
 import { getItem } from "@/data-layer/items";
+import { auth } from "@/auth";
 
 async function ItemPage({ params: { id } }: { params: { id: string } }) {
   // this parseInt get the number from the string so 22r => 22
   // but we may not have that 22R already
 
   const item = await getItem(parseInt(id));
+  const session = await auth();
 
   if (!item) {
     return (
@@ -36,6 +37,8 @@ async function ItemPage({ params: { id } }: { params: { id: string } }) {
   item.fileKey = getImageUrl(item.fileKey);
   const AllBids = await getBidsForItem(item.id);
   const hasBids = AllBids.length > 0;
+
+  const canPlaceBid = session && item.userId !== session.user.id;
 
   return (
     <div className="flex gap-8">
@@ -72,12 +75,10 @@ async function ItemPage({ params: { id } }: { params: { id: string } }) {
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold">Current bids: </h2>
 
-          {hasBids && (
-            <>
-              <form action={placeBidAction.bind(null, item.id)}>
-                <Button>Place bid</Button>
-              </form>
-            </>
+          {hasBids && canPlaceBid && (
+            <form action={placeBidAction.bind(null, item.id)}>
+              <Button>Place bid</Button>
+            </form>
           )}
         </div>
 
@@ -101,9 +102,11 @@ async function ItemPage({ params: { id } }: { params: { id: string } }) {
           <div className="flex flex-col items-center gap-8 bg-gray-100 rounded-xl p-12">
             <Image src="/empty.svg" width="400" height="400" alt="Package" />
             <h2 className="text-2xl font-bold">No bids yet</h2>
-            <form action={placeBidAction.bind(null, item.id)}>
-              <Button>Place the first bid</Button>
-            </form>
+            {canPlaceBid && (
+              <form action={placeBidAction.bind(null, item.id)}>
+                <Button>Place the first bid</Button>
+              </form>
+            )}
           </div>
         )}
       </div>
