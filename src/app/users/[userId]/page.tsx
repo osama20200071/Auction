@@ -1,7 +1,6 @@
 import { auth } from "@/auth";
 import { EmptyState } from "@/components/EmptyState";
 import SignIn from "@/components/Sign-in-Client";
-// import SignIn from "@/components/Sign-in";
 import { getBidsForUser } from "@/data-layer/bids";
 import { getUser } from "@/data-layer/users";
 import { Bid } from "@/db/schema";

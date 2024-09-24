@@ -2,7 +2,7 @@
 
 import { auth } from "@/auth";
 import { database } from "@/db/database";
-import { bids, items } from "@/db/schema";
+import { Bid, bids, items, User } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { Knock } from "@knocklabs/node";
@@ -10,6 +10,10 @@ import { env } from "@/env";
 import { isBidOver } from "@/utils/bids";
 
 const knock = new Knock(env.KNOCK_SECRET_KEY);
+
+type BidWithUser = Bid & {
+  user: User;
+};
 
 // to use this action we wrap the button inside a form
 export async function placeBidAction(itemId: number) {
@@ -43,7 +47,7 @@ export async function placeBidAction(itemId: number) {
     amount = item.currentBid + item.bidInterval;
   }
 
-  const bid = await database.insert(bids).values({
+await database.insert(bids).values({
     itemId,
     userId,
     amount,
@@ -57,12 +61,12 @@ export async function placeBidAction(itemId: number) {
     .where(eq(items.id, itemId));
 
   // get all the bids on the item
-  const currentBids = await database.query.bids.findMany({
+  const currentBids = (await database.query.bids.findMany({
     where: eq(bids.itemId, itemId),
     with: {
       user: true,
     },
-  });
+  })) as BidWithUser[];
 
   const recipients: {
     id: string;

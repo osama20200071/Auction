@@ -25,6 +25,7 @@ declare module "next-auth" {
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: DrizzleAdapter(database, {
     usersTable: users,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     accountsTable: accounts as any,
     sessionsTable: sessions,
     verificationTokensTable: verificationTokens,

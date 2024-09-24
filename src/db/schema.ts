@@ -107,3 +107,4 @@ export const itemsRelations = relations(bids, ({ one }) => ({
 
 export type Item = typeof items.$inferSelect;
 export type Bid = typeof bids.$inferSelect;
+export type User = typeof users.$inferSelect;

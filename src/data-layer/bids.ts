@@ -1,13 +1,13 @@
 import { database } from "@/db/database";
-import { Bid, bids } from "@/db/schema";
+import { bids } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
 
-type UserBid = Bid & {
-  user: {
-    name: string | null;
-    image: string | null;
-  };
-};
+// type UserBid = Bid & {
+//   user: {
+//     name: string | null;
+//     image: string | null;
+//   };
+// };
 
 export async function getBidsForItem(itemId: number) {
   return await database.query.bids.findMany({

@@ -16,6 +16,7 @@ function Notification() {
     <>
       <NotificationIconButton
         ref={notifButtonRef}
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         onClick={(e) => setIsVisible(!isVisible)}
       />
       <NotificationFeedPopover
