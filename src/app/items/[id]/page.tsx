@@ -10,8 +10,9 @@ import { placeBidAction } from "./actions";
 import { getBidsForItem } from "@/data-layer/bids";
 import { getItem } from "@/data-layer/items";
 import { auth } from "@/auth";
-import { formatTimestamp, isBidOver } from "@/utils/bids";
+import { isBidOver } from "@/utils/bids";
 import { Badge } from "@/components/ui/badge";
+import Bids from "./Bids";
 
 async function ItemPage({ params: { id } }: { params: { id: string } }) {
   // this parseInt get the number from the string so 22r => 22
@@ -92,21 +93,7 @@ async function ItemPage({ params: { id } }: { params: { id: string } }) {
         </div>
 
         {hasBids ? (
-          <ul className="space-y-4">
-            {AllBids.map((bid) => (
-              <li key={bid.id} className="bg-gray-100 rounded-xl p-8">
-                <div className="flex gap-4">
-                  <div>
-                    <span className="font-bold">
-                      {formatToDollar(bid.amount)}
-                    </span>{" "}
-                    by <span className="font-bold">{bid.user.name}</span>
-                  </div>
-                  <div className="">{formatTimestamp(bid.timestamp)}</div>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <Bids bids={AllBids} />
         ) : (
           <div className="flex flex-col items-center gap-8 bg-gray-100 rounded-xl p-12">
             <Image src="/empty.svg" width="400" height="400" alt="Package" />

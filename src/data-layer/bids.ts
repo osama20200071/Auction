@@ -1,6 +1,13 @@
 import { database } from "@/db/database";
-import { bids } from "@/db/schema";
+import { Bid, bids } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
+
+type UserBid = Bid & {
+  user: {
+    name: string | null;
+    image: string | null;
+  };
+};
 
 export async function getBidsForItem(itemId: number) {
   return await database.query.bids.findMany({
@@ -12,6 +19,20 @@ export async function getBidsForItem(itemId: number) {
       user: {
         columns: {
           image: true,
+          name: true,
+        },
+      },
+    },
+  });
+}
+
+export async function getBidsForUser(userId: string) {
+  return await database.query.bids.findMany({
+    where: eq(bids.userId, userId),
+    orderBy: [desc(bids.timestamp)],
+    with: {
+      item: {
+        columns: {
           name: true,
         },
       },
