@@ -2,7 +2,7 @@
 
 import { auth } from "@/auth";
 import { database } from "@/db/database";
-import { Bid, bids, items, User } from "@/db/schema";
+import { Bid, bids, items, User, users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { Knock } from "@knocklabs/node";
@@ -40,6 +40,10 @@ export async function placeBidAction(itemId: number) {
     throw new Error("This auction is already over");
   }
 
+  const owner = await database.query.users.findFirst({
+    where: eq(users.id, item.userId),
+  });
+
   let amount;
   if (item.currentBid === 0) {
     amount = item.startingPrice + item.bidInterval;
@@ -47,7 +51,7 @@ export async function placeBidAction(itemId: number) {
     amount = item.currentBid + item.bidInterval;
   }
 
-await database.insert(bids).values({
+  await database.insert(bids).values({
     itemId,
     userId,
     amount,
@@ -76,16 +80,23 @@ await database.insert(bids).values({
 
   for (const bid of currentBids) {
     if (
-      // bid.userId !== userId &&
+      bid.userId !== userId &&
       !recipients.find((recipient) => recipient.id === bid.userId)
     ) {
       recipients.push({
-        id: bid.userId + "",
+        id: bid.userId,
         name: bid.user.name ?? "Anonymous",
         email: bid.user.email,
       });
     }
   }
+
+  //* notify the owner of the item
+  recipients.push({
+    id: owner?.id + "",
+    name: owner?.name ?? "Anonymous",
+    email: owner?.email ?? "",
+  });
 
   if (recipients.length > 0) {
     await knock.workflows.trigger("user-placed-bid", {
@@ -100,6 +111,7 @@ await database.insert(bids).values({
         itemId,
         bidAmount: amount,
         itemName: item.name,
+        userName: session?.user?.name ?? "Someone",
       },
     });
   }

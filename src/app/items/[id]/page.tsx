@@ -13,6 +13,7 @@ import { auth } from "@/auth";
 import { isBidOver } from "@/utils/bids";
 import { Badge } from "@/components/ui/badge";
 import Bids from "./Bids";
+import SignIn from "@/components/Sign-in-Client";
 
 async function ItemPage({ params: { id } }: { params: { id: string } }) {
   // this parseInt get the number from the string so 22r => 22
@@ -43,7 +44,8 @@ async function ItemPage({ params: { id } }: { params: { id: string } }) {
   const hasBids = AllBids.length > 0;
 
   const canPlaceBid =
-    session && item.userId !== session.user.id && isBidOver(item);
+    session && item.userId !== session.user.id && !isBidOver(item);
+  // console.log(isBidOver(item));
 
   return (
     <div className="flex gap-8">
@@ -101,6 +103,11 @@ async function ItemPage({ params: { id } }: { params: { id: string } }) {
             {canPlaceBid && (
               <form action={placeBidAction.bind(null, item.id)}>
                 <Button>Place the first bid</Button>
+              </form>
+            )}
+            {!session && (
+              <form action={placeBidAction.bind(null, item.id)}>
+                <SignIn />
               </form>
             )}
           </div>

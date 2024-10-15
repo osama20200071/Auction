@@ -33,7 +33,7 @@ function Notification() {
                 }}
                 href={`/items/${item?.data?.itemId}`}
               >
-                Someone outbidded you on{" "}
+                {item?.data?.userName || "Someone"} outbidded you on{" "}
                 <span className="font-bold">{item?.data?.itemName}</span> by{" "}
                 {formatToDollar(item?.data?.bidAmount)}
               </Link>

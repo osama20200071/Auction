@@ -32,10 +32,10 @@ function CardItem({ item }: { item: Item }) {
           >
             Bidding Over
           </Badge>
-          {/* <div>
+          <div>
             Sold For:{" "}
             <span className="font-bold">{formatToDollar(item.currentBid)}</span>
-          </div> */}
+          </div>
           <Button asChild variant="secondary">
             <Link href={`/items/${item.id}`}>View Bids</Link>
           </Button>

@@ -6,6 +6,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import Notification from "./Notification";
+import SignIn from "@/components/Sign-in-Client";
 
 export function Header() {
   const session = useSession();
@@ -15,8 +16,10 @@ export function Header() {
       <div className="container flex justify-between items-center mx-auto">
         <div className="flex items-center gap-12">
           <Link href="/" className="hover:underline flex items-center gap-1">
-            <Image src="/logo.png" width="50" height="50" alt="Logo" />
-            BidBuddy.com
+            {/* <Image src="/logo.png" width="50" height="50" alt="Logo" /> */}
+            <Image src="/auction.svg" width="50" height="50" alt="Logo" />
+
+            {/* Auction.com */}
           </Link>
 
           <div className="flex items-center gap-8">
@@ -58,9 +61,10 @@ export function Header() {
           <div>
             <Protected
               fallback={
-                <Button type="submit" onClick={() => signIn()}>
-                  Sign In
-                </Button>
+                <SignIn />
+                // <Button type="submit" onClick={() => signIn()}>
+                //   Sign In
+                // </Button>
               }
             >
               <Button
