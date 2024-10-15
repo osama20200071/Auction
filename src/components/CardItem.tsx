@@ -8,7 +8,7 @@ import { format } from "date-fns";
 import { isBidOver } from "@/utils/bids";
 import { Badge } from "./ui/badge";
 
-function CardItem({ item }: { item: Item }) {
+function CardItem({ item, mine }: { item: Item; mine?: boolean }) {
   return (
     <div className="p-6 rounded-xl border space-y-2 relative" key={item.id}>
       <Image
@@ -32,10 +32,10 @@ function CardItem({ item }: { item: Item }) {
           >
             Bidding Over
           </Badge>
-          <div>
+          {/* <div>
             Sold For:{" "}
             <span className="font-bold">{formatToDollar(item.currentBid)}</span>
-          </div>
+          </div> */}
           <Button asChild variant="secondary">
             <Link href={`/items/${item.id}`}>View Bids</Link>
           </Button>
@@ -49,7 +49,9 @@ function CardItem({ item }: { item: Item }) {
             </span>
           </div>
           <Button asChild>
-            <Link href={`/items/${item.id}`}>Place Bid</Link>
+            <Link href={`/items/${item.id}`}>
+              {mine ? "View Bids" : "Place Bid"}
+            </Link>
           </Button>
         </>
       )}

@@ -29,7 +29,7 @@ async function MyAuctionsPage() {
       {hasItems ? (
         <div className="grid grid-cols-4 gap-4">
           {userItems.map((item) => (
-            <CardItem item={item} key={item.id} />
+            <CardItem item={item} key={item.id} mine />
           ))}
         </div>
       ) : (
