@@ -7,18 +7,18 @@ import Link from "next/link";
 import SignIn from "@/components/Sign-in-Client";
 import Protected from "@/components/Protected-Server";
 import { getAllItems } from "@/data-layer/items";
-import { auth } from "@/auth";
 
 export default async function HomePage() {
   const allItems = await getAllItems();
   allItems.forEach((item) => (item.fileKey = getImageUrl(item.fileKey)));
 
-  const session = await auth();
-  const otherItems = allItems.filter(
-    (item) => item.userId !== session?.user.id
-  );
+  // const session = await auth();
+  // const otherItems = allItems.filter(
+  //   (item) => item.userId !== session?.user.id
+  // );
 
   const haveAuctions = allItems.length > 0;
+  // const haveAuctions = otherItems.length > 0;
 
   return (
     <main className=" space-y-8">
@@ -26,7 +26,7 @@ export default async function HomePage() {
 
       {haveAuctions ? (
         <div className="grid grid-cols-4 gap-4">
-          {otherItems.map((item) => (
+          {allItems.map((item) => (
             <CardItem item={item} key={item.id} />
           ))}
         </div>
