@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic"; // Force dynamic rendering
 import { getImageUrl } from "@/Appwrite/client";
 import CardItem from "@/components/CardItem";
 import { EmptyState } from "@/components/EmptyState";
@@ -12,13 +13,7 @@ export default async function HomePage() {
   const allItems = await getAllItems();
   allItems.forEach((item) => (item.fileKey = getImageUrl(item.fileKey)));
 
-  // const session = await auth();
-  // const otherItems = allItems.filter(
-  //   (item) => item.userId !== session?.user.id
-  // );
-
   const haveAuctions = allItems.length > 0;
-  // const haveAuctions = otherItems.length > 0;
 
   return (
     <main className=" space-y-8">
